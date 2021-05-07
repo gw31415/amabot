@@ -18,7 +18,10 @@ package cmd
 
 import (
 	"log"
+	"os"
+	"os/signal"
 
+	"github.com/bwmarrin/discordgo"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -34,6 +37,19 @@ var runCmd = &cobra.Command{
 				log.Fatalln(err)
 			}
 		}()
+		discord, err := discordgo.New("Bot " + viper.GetString("token"))
+		if err != nil {
+			panic("Failed to instantiate Discord client")
+		}
+		if err = discord.Open(); err != nil {
+			panic(err)
+		}
+		defer discord.Close()
+		log.Println("Start Amabot; Listening....")
+		stop := make(chan os.Signal)
+		signal.Notify(stop, os.Interrupt)
+		<-stop
+		log.Println("Keyboard Interrupt")
 	},
 }
 
