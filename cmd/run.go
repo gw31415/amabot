@@ -41,11 +41,16 @@ var runCmd = &cobra.Command{
 		if err != nil {
 			panic("Failed to instantiate Discord client")
 		}
-		if err = discord.Open(); err != nil {
+		err = discord.Open()
+		if err != nil {
 			panic(err)
 		}
-		defer discord.Close()
-		log.Println("Start Amabot; Listening....")
+		defer func() {
+			log.Print("Closing Amabot....  ")
+			discord.Close()
+			log.Println("done.")
+		}()
+		log.Println("Amabot is now running. Press CTRL-C to exit.")
 		stop := make(chan os.Signal)
 		signal.Notify(stop, os.Interrupt)
 		<-stop
