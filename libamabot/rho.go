@@ -12,7 +12,7 @@ import (
 )
 
 func SetString(n *big.Int, str string) (nw *big.Int) {
-	nw, ok := n.SetString(str, 10)
+	nw, ok := n.SetString(strings.TrimSpace(str), 10)
 	if ok {
 		return nw
 	} else {
@@ -45,7 +45,7 @@ func init() {
 				return
 			}
 			if m.Content[:5] == ">>rho" {
-				num_str := strings.TrimSpace(m.Content[5:])
+				num_str := m.Content[5:]
 				//数値にする
 				num := new(big.Int)
 				num = SetString(num, num_str)
