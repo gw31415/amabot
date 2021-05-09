@@ -21,7 +21,7 @@ import (
 	"os"
 	"os/signal"
 
-	"github.com/bwmarrin/discordgo"
+	"github.com/gw31415/amabot/libamabot"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -37,19 +37,21 @@ var runCmd = &cobra.Command{
 				log.Fatalln(err)
 			}
 		}()
-		discord, err := discordgo.New("Bot " + viper.GetString("token"))
+		amabot, err := libamabot.New(viper.GetString("token"))
 		if err != nil {
 			panic("Failed to instantiate Discord client")
 		}
-		err = discord.Open()
+
+		err = amabot.Run()
 		if err != nil {
 			panic(err)
 		}
 		defer func() {
-			log.Print("Closing Amabot....  ")
-			discord.Close()
+			log.Println("Closing Amabot....")
+			amabot.Close()
 			log.Println("done.")
 		}()
+
 		log.Println("Amabot is now running. Press CTRL-C to exit.")
 		stop := make(chan os.Signal)
 		signal.Notify(stop, os.Interrupt)
