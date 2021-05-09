@@ -23,7 +23,7 @@ func SetString(n *big.Int, str string) (nw *big.Int) {
 func init() {
 	handlers_db = append(handlers_db, handler{
 		id:   "rho",
-		help: "",
+		help: "perform prime factorization using Pollard's rho algorithm",
 		main: func(s *discordgo.Session, m *discordgo.MessageCreate) {
 			defer func() {
 				if err := recover(); err != nil {

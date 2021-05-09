@@ -7,7 +7,7 @@ import (
 func init() {
 	handlers_db = append(handlers_db, handler{
 		id:   "pingpong",
-		help: "catch ping and reply pong",
+		help: "catch ping then reply pong, and vice versa",
 		main: func(s *discordgo.Session, m *discordgo.MessageCreate) {
 			if m.Author.ID == s.State.User.ID {
 				return
