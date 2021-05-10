@@ -11,8 +11,8 @@ import (
 
 func init() {
 	handlers_db = append(handlers_db, handler{
-		id:   "encodeuri",
-		help: "encode string data into uri.",
+		id:   "uri",
+		help: "encode and decode uri string.\n commands:\n`>>encodeuri [raw string]` `>>decodeuri`",
 		main: func(s *discordgo.Session, m *discordgo.MessageCreate) {
 			defer func() {
 				if err := recover(); err != nil {
@@ -35,7 +35,14 @@ func init() {
 			if len(m.Content) >= 11 {
 				if m.Content[:11] == ">>encodeuri" {
 					rawtext := strings.TrimSpace(m.Content[11:])
-					s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("```\n%s```",url.PathEscape(rawtext)))
+					s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("```\n%s```", url.PathEscape(rawtext)))
+				} else if m.Content[:11] == ">>decodeuri" {
+					uritext := strings.TrimSpace(m.Content[11:])
+					rawtext, err := url.PathUnescape(uritext)
+					if err != nil {
+						panic(err)
+					}
+					s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("```\n%s```", rawtext))
 				}
 			}
 		},
