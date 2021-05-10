@@ -12,7 +12,7 @@ import (
 func init() {
 	handlers_db = append(handlers_db, handler{
 		id:   "uri",
-		help: "encode and decode uri string.\n commands:\n`>>encodeuri [raw string]` `>>decodeuri`",
+		help: "encode and decode uri string.\n commands:\n`>>encodeuri [raw string]` `>>decodeuri [uri-parsed string]`",
 		main: func(s *discordgo.Session, m *discordgo.MessageCreate) {
 			defer func() {
 				if err := recover(); err != nil {
