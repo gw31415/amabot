@@ -19,7 +19,7 @@ handler object.
 
 `id` is string to identificate each handler.
 `help` is help text to help users.
-`main` is handler function. This is to be added to discordgo.Session through function: [AddHandler](https://pkg.go.dev/github.com/bwmarrin/discordgo#Session.AddHandler).
+`main` is handler function. This is to be passed to discordgo.Session through function: [AddHandler](https://pkg.go.dev/github.com/bwmarrin/discordgo#Session.AddHandler).
 
 ### handlers
 
