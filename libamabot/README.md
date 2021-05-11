@@ -1,6 +1,6 @@
 # libamabot
 
-[![GoDoc](https://godoc.org/github.com/mathlava/bigc?status.svg)](https://godoc.org/github.com/mathlava/bigc)
+[![GoDoc](https://godoc.org/github.com/gw31415/amabot/libamabot?status.svg)](https://godoc.org/github.com/gw31415/amabot/libamabot)
 
 An Discord bot Instance
 
