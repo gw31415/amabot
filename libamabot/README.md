@@ -27,4 +27,4 @@ handler object.
 var handlers_db []handlers
 ```
 
-All database of handlers. Add handlers here.
+The database of all registered handlers. Making any handlers, add here them.
