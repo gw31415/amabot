@@ -12,7 +12,7 @@ import (
 func init() {
 	handlers_db = append(handlers_db, handler{
 		id:   "list",
-		help: "list all handler ids.",
+		help: "list all handler ids.\n**Command:** `>>list`",
 		main: func(s *discordgo.Session, m *discordgo.MessageCreate) {
 			defer func() {
 				if err := recover(); err != nil {

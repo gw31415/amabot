@@ -18,7 +18,7 @@ func rgbaToInt(c color.RGBA) int {
 func init() {
 	handlers_db = append(handlers_db, handler{
 		id:   "color",
-		help: "check color",
+		help: "check color\n**Example:**\n  `>>color #ffd700` `>>color violet`",
 		main: func(s *discordgo.Session, m *discordgo.MessageCreate) {
 			defer func() {
 				if err := recover(); err != nil {

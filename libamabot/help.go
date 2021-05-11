@@ -11,7 +11,7 @@ import (
 func init() {
 	handlers_db = append(handlers_db, handler{
 		id:   "help",
-		help: "show the help of each handler.\nif you want to list of handlers, please enter `>>list` command.",
+		help: "show the help of each handler.\n**Command:**\n`>>help [handler name]`\n*cf:* if you want to list of handlers, please enter `>>list` command.",
 		main: func(s *discordgo.Session, m *discordgo.MessageCreate) {
 			defer func() {
 				if err := recover(); err != nil {
