@@ -6,6 +6,7 @@ import (
 	"math/big"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/mathlava/bigc/math/rho"
@@ -45,24 +46,33 @@ func init() {
 				return
 			}
 			if m.Content[:5] == ">>rho" {
-				num_str := m.Content[5:]
-				//数値にする
-				num := new(big.Int)
-				num = SetString(num, num_str)
-				//数値にならなければ
-				list := rho.Primes(num)
-				sort.Slice(list, func(i, j int) bool { return list[i].Cmp(list[j]) == -1 })
-				result_bytes := make([]byte, 0)
-				for i := 0; i < len(list)-1; i++ {
-					result_bytes = append(result_bytes, list[i].String()...)
-					result_bytes = append(result_bytes, "×"...)
+				watch_time := make(chan *discordgo.MessageEmbed, 1)
+				go func() {
+					num_str := m.Content[5:]
+					//数値にする
+					num := new(big.Int)
+					num = SetString(num, num_str)
+					//数値にならなければ
+					list := rho.Primes(num)
+					sort.Slice(list, func(i, j int) bool { return list[i].Cmp(list[j]) == -1 })
+					result_bytes := make([]byte, 0)
+					for i := 0; i < len(list)-1; i++ {
+						result_bytes = append(result_bytes, list[i].String()...)
+						result_bytes = append(result_bytes, "×"...)
+					}
+					result_bytes = append(result_bytes, list[len(list)-1].String()...)
+					watch_time <- &discordgo.MessageEmbed{
+						Title:       num_str,
+						Description: string(result_bytes),
+						Color:       0x00e6ff,
+					}
+				}()
+				select {
+				case messageEmbed := <-watch_time:
+					s.ChannelMessageSendEmbed(m.ChannelID, messageEmbed)
+				case <-time.After(0xfff * time.Millisecond):
+					panic("timeout.")
 				}
-				result_bytes = append(result_bytes, list[len(list)-1].String()...)
-				s.ChannelMessageSendEmbed(m.ChannelID, &discordgo.MessageEmbed{
-					Title: num_str,
-					Description: string(result_bytes),
-					Color: 0x00e6ff,
-				})
 			}
 
 		},
