@@ -37,7 +37,7 @@ var runCmd = &cobra.Command{
 				log.Fatalln(err)
 			}
 		}()
-		amabot, err := libamabot.New(viper.GetString("token"))
+		amabot, err := libamabot.New()
 		if err != nil {
 			panic("Failed to instantiate Discord client")
 		}
@@ -76,4 +76,7 @@ func init() {
 	runCmd.Flags().StringP("token", "t", "", "Discord Bot token")
 	viper.BindPFlag("token", runCmd.Flags().Lookup("token"))
 	viper.BindEnv("TOKEN")
+	runCmd.Flags().StringP("game-status", "g", "Amabot", "The name of game at status of Discord")
+	viper.BindPFlag("game-status", runCmd.Flags().Lookup("game-status"))
+	viper.BindEnv("GAME_STATUS")
 }

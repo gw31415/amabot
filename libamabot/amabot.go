@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/spf13/viper"
 )
 
 // Amabot instance
@@ -13,8 +14,8 @@ type Amabot struct {
 }
 
 // Create new Amabot instance
-func New(token string) (*Amabot, error) {
-	discord_session, err := discordgo.New("Bot " + token)
+func New() (*Amabot, error) {
+	discord_session, err := discordgo.New("Bot " + viper.GetString("token"))
 	if err != nil {
 		return nil, err
 	}

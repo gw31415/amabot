@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/spf13/viper"
 )
 
 func init() {
@@ -11,7 +12,7 @@ func init() {
 		id:   "readystatus",
 		help: "set ready status",
 		main: func(s *discordgo.Session, r *discordgo.Ready) {
-			s.UpdateGameStatus(0, "The Answer to Life, the Universe, Everything")
+			s.UpdateGameStatus(0, viper.GetString("game-status"))
 			log.Println("Amabot is ready.")
 		},
 	})
