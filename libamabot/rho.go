@@ -47,6 +47,7 @@ func init() {
 			}
 			if m.Content[:5] == ">>rho" {
 				watch_time := make(chan *discordgo.MessageEmbed, 1)
+				s.ChannelTyping(m.ChannelID)
 				go func() {
 					num_str := m.Content[5:]
 					//数値にする
