@@ -11,8 +11,7 @@ import (
 )
 
 func init() {
-	handlers_db = append(handlers_db, handler{
-		id:   "hash",
+	addHandler(&handler{
 		help: "get hash.\n commands:\n`>>sha256sum [raw string]` `>>sha1sum [raw string]`",
 		main: func(s *discordgo.Session, m *discordgo.MessageCreate) {
 			defer func() {

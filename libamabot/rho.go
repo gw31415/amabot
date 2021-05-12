@@ -12,18 +12,17 @@ import (
 	"github.com/mathlava/bigc/math/rho"
 )
 
-func SetString(n *big.Int, str string) (nw *big.Int) {
-	nw, ok := n.SetString(strings.TrimSpace(str), 10)
-	if ok {
-		return nw
-	} else {
-		panic("parse error.")
-	}
-}
-
 func init() {
-	handlers_db = append(handlers_db, handler{
-		id:   "rho",
+	setString := func(n *big.Int, str string) (nw *big.Int) {
+		nw, ok := n.SetString(strings.TrimSpace(str), 10)
+		if ok {
+			return nw
+		} else {
+			panic("parse error.")
+		}
+	}
+
+	addHandler(&handler{
 		help: "perform prime factorization using Pollard's rho algorithm\n **Example:**\n `>>rho 57`",
 		main: func(s *discordgo.Session, m *discordgo.MessageCreate) {
 			defer func() {
@@ -52,7 +51,7 @@ func init() {
 					num_str := m.Content[5:]
 					//数値にする
 					num := new(big.Int)
-					num = SetString(num, num_str)
+					num = setString(num, num_str)
 					//数値にならなければ
 					list := rho.Primes(num)
 					sort.Slice(list, func(i, j int) bool { return list[i].Cmp(list[j]) == -1 })
@@ -75,7 +74,6 @@ func init() {
 					panic("timeout.")
 				}
 			}
-
 		},
 	})
 }

@@ -8,8 +8,7 @@ import (
 )
 
 func init() {
-	handlers_db = append(handlers_db, handler{
-		id:   "readystatus",
+	addHandler(&handler{
 		help: "set ready status. no command is provided.",
 		main: func(s *discordgo.Session, r *discordgo.Ready) {
 			s.UpdateGameStatus(0, viper.GetString("game-status"))

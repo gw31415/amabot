@@ -9,8 +9,7 @@ import (
 )
 
 func init() {
-	handlers_db = append(handlers_db, handler{
-		id:   "help",
+	addHandler(&handler{
 		help: "show the help of each handler.\n**Command:**\n`>>help [handler name]`\n*cf:* if you want to list of handlers, please enter `>>list` command.",
 		main: func(s *discordgo.Session, m *discordgo.MessageCreate) {
 			defer func() {
@@ -38,16 +37,14 @@ func init() {
 						handler_id = strings.TrimSpace(m.Content[6:])
 					}
 					// search and send
-					for _, h := range handlers_db {
-						if h.id == handler_id {
-							s.ChannelMessageSendEmbed(m.ChannelID, &discordgo.MessageEmbed{
-								Title:       fmt.Sprintf("Help of handler: `%s`", handler_id),
-								Description: h.help,
-							})
-							return
-						}
+					if help, err := GetHelp(handler_id); err == nil {
+						s.ChannelMessageSendEmbed(m.ChannelID, &discordgo.MessageEmbed{
+							Title:       fmt.Sprintf("Help of handler: `%s`", handler_id),
+							Description: help,
+						})
+					} else {
+						panic(err)
 					}
-					panic("handler not found: " + handler_id)
 				}
 			}
 		},

@@ -10,8 +10,7 @@ import (
 )
 
 func init() {
-	handlers_db = append(handlers_db, handler{
-		id:   "uri",
+	addHandler(&handler{
 		help: "encode and decode uri string.\n commands:\n`>>encodeuri [raw string]` `>>decodeuri [uri-parsed string]`",
 		main: func(s *discordgo.Session, m *discordgo.MessageCreate) {
 			defer func() {

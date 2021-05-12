@@ -37,7 +37,7 @@ var runCmd = &cobra.Command{
 				log.Fatalln(err)
 			}
 		}()
-		amabot, err := libamabot.New()
+		amabot, err := libamabot.New(viper.GetString("token"))
 		if err != nil {
 			panic("Failed to instantiate Discord client")
 		}

@@ -9,8 +9,7 @@ import (
 )
 
 func init() {
-	handlers_db = append(handlers_db, handler{
-		id:   "user",
+	addHandler(&handler{
 		help: "get user data.\n**Command:** `>>id` `>>mfa`",
 		main: func(s *discordgo.Session, m *discordgo.MessageCreate) {
 			defer func() {

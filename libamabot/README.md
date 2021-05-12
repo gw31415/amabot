@@ -9,7 +9,6 @@ An Discord bot Instance
 
 ```go
 type handler struct {
-	id    string
 	help  string
 	main  interface{}
 }
@@ -17,14 +16,13 @@ type handler struct {
 
 handler object.
 
-`id` is string to identificate each handler.
 `help` is help text to help users.
 `main` is handler function. This is to be passed to discordgo.Session through function: [AddHandler](https://pkg.go.dev/github.com/bwmarrin/discordgo#Session.AddHandler).
 
 ### handlers
 
-```go
-var handlers_db []handlers
-```
+When it comes to add new handler to Amabot-system, please add new instance of handler in an `init` function through `addHandler` function.
 
-The database of all registered handlers. Making any handlers, add here them.
+```go
+func addHandler(h *handler)
+```
