@@ -34,7 +34,7 @@ type handler struct {
 // DO NOT EDIT DIRECTRY
 var handlers_db map[string]*handler
 
-// add handler to handlers_db
+// add handler to handlers_db when initialize.
 func addHandler(h *handler) {
 	if handlers_db == nil {
 		handlers_db = make(map[string]*handler, 0)
