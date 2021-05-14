@@ -39,7 +39,7 @@ func addHandler(h *handler) {
 	if handlers_db == nil {
 		handlers_db = make(map[string]*handler, 0)
 	}
-	_, name, _, _ := runtime.Caller(1)
+	_, name, _, _ := runtime.Caller(1) // Get the module filename
 	name = filepath.Base(name[:len(name)-len(filepath.Ext(name))])
 	handlers_db[name] = h
 }
