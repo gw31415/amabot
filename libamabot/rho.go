@@ -22,9 +22,8 @@ func init() {
 		}
 	}
 
-	addHandler(&handler{
-		help: "perform prime factorization using Pollard's rho algorithm\n **Example:**\n `>>rho 57`",
-		main: func(s *discordgo.Session, m *discordgo.MessageCreate) {
+	addHandler(
+		func(s *discordgo.Session, m *discordgo.MessageCreate) {
 			defer func() {
 				if err := recover(); err != nil {
 					log.Println(err)
@@ -74,6 +73,5 @@ func init() {
 					panic("timeout.")
 				}
 			}
-		},
-	})
+		})
 }

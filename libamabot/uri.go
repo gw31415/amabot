@@ -10,9 +10,8 @@ import (
 )
 
 func init() {
-	addHandler(&handler{
-		help: "encode and decode uri string.\n commands:\n`>>encodeuri [raw string]` `>>decodeuri [uri-parsed string]`",
-		main: func(s *discordgo.Session, m *discordgo.MessageCreate) {
+	addHandler(
+		func(s *discordgo.Session, m *discordgo.MessageCreate) {
 			defer func() {
 				if err := recover(); err != nil {
 					log.Println(err)
@@ -44,6 +43,5 @@ func init() {
 					s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("```\n%s```", rawtext))
 				}
 			}
-		},
-	})
+		})
 }

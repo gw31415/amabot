@@ -8,11 +8,9 @@ import (
 )
 
 func init() {
-	addHandler(&handler{
-		help: "set ready status. no command is provided.",
-		main: func(s *discordgo.Session, r *discordgo.Ready) {
+	addHandler(
+		func(s *discordgo.Session, r *discordgo.Ready) {
 			s.UpdateGameStatus(0, viper.GetString("game-status"))
 			log.Println("Amabot is ready.")
-		},
-	})
+		})
 }

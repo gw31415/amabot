@@ -10,9 +10,8 @@ import (
 )
 
 func init() {
-	addHandler(&handler{
-		help: "list all handler ids.\n**Command:** `>>list`",
-		main: func(s *discordgo.Session, m *discordgo.MessageCreate) {
+	addHandler(
+		func(s *discordgo.Session, m *discordgo.MessageCreate) {
 			defer func() {
 				if err := recover(); err != nil {
 					log.Println(err)
@@ -37,6 +36,5 @@ func init() {
 					s.ChannelMessageSend(m.ChannelID, fmt.Sprint(list))
 				}
 			}
-		},
-	})
+		})
 }

@@ -5,9 +5,8 @@ import (
 )
 
 func init() {
-	addHandler(&handler{
-		help: "catch ping then reply pong, and vice versa",
-		main: func(s *discordgo.Session, m *discordgo.MessageCreate) {
+	addHandler(
+		func(s *discordgo.Session, m *discordgo.MessageCreate) {
 			if m.Author.ID == s.State.User.ID {
 				return
 			}
@@ -21,6 +20,5 @@ func init() {
 			if m.Content == "pong" {
 				s.ChannelMessageSend(m.ChannelID, "Ping!")
 			}
-		},
-	})
+		})
 }

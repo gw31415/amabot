@@ -36,7 +36,9 @@ func (ama *Amabot) Run() error {
 		if h := handlers_db[id]; h == nil {
 			return errors.New("handler not found named: " + id)
 		} else {
-			ama.discord.AddHandler(h.main)
+			for _, h := range h {
+			ama.discord.AddHandler(h)
+			}
 		}
 	}
 	if err := ama.discord.Open(); err != nil {

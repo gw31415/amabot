@@ -9,9 +9,7 @@ import (
 )
 
 func init() {
-	addHandler(&handler{
-		help: "get user data.\n**Command:** `>>id` `>>mfa`",
-		main: func(s *discordgo.Session, m *discordgo.MessageCreate) {
+	addHandler(func(s *discordgo.Session, m *discordgo.MessageCreate) {
 			defer func() {
 				if err := recover(); err != nil {
 					log.Println(err)
@@ -38,6 +36,5 @@ func init() {
 					s.ChannelMessageSend(m.ChannelID, "false")
 				}
 			}
-		},
-	})
+		})
 }
