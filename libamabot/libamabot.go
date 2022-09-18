@@ -101,6 +101,8 @@ func GetAllHandlersList() []string {
 // DO NOT EDIT DIRECTRY
 var handlers_db map[string][]interface{}
 
+const MESSAGECMD_PREFIX = ">>"
+
 // Implement simple commands with message content intent
 // handler : Handler to be registered
 func messageCmd(handler func(ctx context.Context, s *discordgo.Session, m *discordgo.MessageCreate)) {
@@ -124,7 +126,7 @@ func messageCmd(handler func(ctx context.Context, s *discordgo.Session, m *disco
 		if len(m.Content) < len(name)+2 {
 			return
 		}
-		if m.Content[:len(name)+2] != ">>"+name {
+		if m.Content[:len(name)+2] != MESSAGECMD_PREFIX+name {
 			return
 		}
 		defer func() {
@@ -138,10 +140,10 @@ func messageCmd(handler func(ctx context.Context, s *discordgo.Session, m *disco
 		}()
 		watch_res := make(chan struct{})
 		watch_err := make(chan interface{})
-		childCtx, cancel := context.WithTimeout(context.Background(), 0xfff*time.Millisecond)
-		defer cancel()
-		watch_timeout, cancel2 := context.WithCancel(childCtx)
-		defer cancel2()
+		watch_timeout, c1 := context.WithTimeout(context.Background(), 0xfff*time.Millisecond)
+		defer c1()
+		childCtx := context.WithValue(watch_timeout, "prefix", MESSAGECMD_PREFIX)
+		childCtx = context.WithValue(childCtx, "cmd", name)
 		go func() {
 			defer func() {
 				if err := recover(); err != nil {

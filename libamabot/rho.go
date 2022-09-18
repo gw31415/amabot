@@ -14,7 +14,9 @@ func init() {
 	messageCmd(
 		func(ctx context.Context, s *discordgo.Session, m *discordgo.MessageCreate) {
 			s.ChannelTyping(m.ChannelID)
-			num_str := m.Content[5:]
+			prefix := ctx.Value("prefix").(string)
+			cmd := ctx.Value("cmd").(string)
+			num_str := m.Content[len(prefix)+len(cmd):]
 			//数値にする
 			num := new(big.Int)
 			num, ok := num.SetString(strings.TrimSpace(num_str), 10)
