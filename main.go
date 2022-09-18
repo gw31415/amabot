@@ -50,6 +50,7 @@ func init() {
 			home, err := os.UserHomeDir()
 			cobra.CheckErr(err)
 
+			viper.SetEnvPrefix("AMABOT")
 			viper.AddConfigPath(".")
 			viper.AddConfigPath(home)
 			viper.SetConfigType("yaml")
