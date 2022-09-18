@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -130,7 +129,6 @@ func messageCmd(handler func(ctx context.Context, s *discordgo.Session, m *disco
 		}
 		defer func() {
 			if err := recover(); err != nil {
-				log.Println(err, m.Content)
 				s.ChannelMessageSendEmbed(m.ChannelID, &discordgo.MessageEmbed{
 					Title:       "Error",
 					Color:       0xff0000,

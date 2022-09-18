@@ -17,12 +17,9 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"os/signal"
-	"runtime"
-	"time"
 
 	"github.com/gw31415/amabot/libamabot"
 	"github.com/spf13/cobra"
@@ -69,15 +66,15 @@ func init() {
 }
 
 func main() {
-	go func(){
-		tiker := time.NewTicker(time.Second)
-		for {
-			select {
-			case <- tiker.C:
-				fmt.Println("Gorountine Count is: ", runtime.NumGoroutine())
-			}
-		}
-	}()
+	// go func() {
+	// 	tiker := time.NewTicker(time.Second)
+	// 	for {
+	// 		select {
+	// 		case <-tiker.C:
+	// 			fmt.Println("Gorountine Count is: ", runtime.NumGoroutine())
+	// 		}
+	// 	}
+	// }()
 
 	rootCmd.Run = func(cmd *cobra.Command, args []string) {
 		amabot, e := libamabot.New(token)
