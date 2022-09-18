@@ -49,20 +49,19 @@ func init() {
 		} else {
 			home, err := os.UserHomeDir()
 			cobra.CheckErr(err)
-
-			viper.SetEnvPrefix("AMABOT")
 			viper.AddConfigPath(".")
 			viper.AddConfigPath(home)
 			viper.SetConfigType("yaml")
 			viper.SetConfigName("amabot")
 		}
-
-		viper.AutomaticEnv()
-
 		if err := viper.ReadInConfig(); err == nil {
 			log.Println("Using config file:", viper.ConfigFileUsed())
-			token = viper.GetString("token")
 		}
+
+		viper.SetEnvPrefix("AMABOT")
+		viper.AutomaticEnv()
+
+		token = viper.GetString("token")
 	})
 }
 
