@@ -20,6 +20,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"strings"
 	"time"
 
 	"github.com/gw31415/amabot/libamabot"
@@ -64,6 +65,7 @@ func init() {
 			log.Println("Using config file:", viper.ConfigFileUsed())
 		}
 
+		viper.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 		viper.SetEnvPrefix("AMABOT")
 		viper.AutomaticEnv()
 
