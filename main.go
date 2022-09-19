@@ -44,6 +44,7 @@ func init() {
 	rootCmd.PersistentFlags().StringP("token", "t", "", "Value of Discord API token")
 	rootCmd.PersistentFlags().String("opts-prefix", ">>", "Prefix to fire MessageCmds")
 	rootCmd.PersistentFlags().Duration("opts-timeout", 2*time.Second, "Set timeout duration")
+	rootCmd.PersistentFlags().StringSlice("opts-guilds", make([]string, 0), "GuildIds to register ApplicationCommands")
 
 	// Read configuration file when it exists.
 	cobra.OnInitialize(func() {
@@ -69,6 +70,7 @@ func init() {
 		viper.BindPFlag("token", rootCmd.Flags().Lookup("token"))
 		viper.BindPFlag("opts-prefix", rootCmd.Flags().Lookup("opts-prefix"))
 		viper.BindPFlag("opts-timeout", rootCmd.Flags().Lookup("opts-timeout"))
+		viper.BindPFlag("opts-guilds", rootCmd.Flags().Lookup("opts-guilds"))
 	})
 }
 
@@ -86,6 +88,7 @@ func main() {
 		opts := libamabot.NewAmabotOptions()
 		opts.SetMessageCmdPrefix(viper.GetString("opts-prefix"))
 		opts.SetTimeoutDuration(viper.GetDuration("opts-timeout"))
+		opts.SetAppCmdGuildIds(viper.GetStringSlice("opts-guilds"))
 		token := viper.GetString("token")
 		amabot, e := libamabot.New(token, opts)
 		cobra.CheckErr(e)
