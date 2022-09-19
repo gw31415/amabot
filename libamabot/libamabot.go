@@ -204,7 +204,7 @@ func slashCmd(appCmd *discordgo.ApplicationCommand, handler func(ctx context.Con
 			defer func() {
 				if err := recover(); err != nil {
 					s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-						Type: discordgo.InteractionResponsePong,
+						Type: discordgo.InteractionResponseChannelMessageWithSource,
 						Data: &discordgo.InteractionResponseData{
 							Embeds: []*discordgo.MessageEmbed{
 								{
