@@ -206,6 +206,7 @@ func slashCmd(appCmd *discordgo.ApplicationCommand, handler func(ctx context.Con
 					s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 						Type: discordgo.InteractionResponseChannelMessageWithSource,
 						Data: &discordgo.InteractionResponseData{
+							Flags: discordgo.MessageFlagsEphemeral,
 							Embeds: []*discordgo.MessageEmbed{
 								{
 									Title:       "Error",
