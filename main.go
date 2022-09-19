@@ -20,6 +20,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"time"
 
 	"github.com/gw31415/amabot/libamabot"
 	"github.com/spf13/cobra"
@@ -31,21 +32,25 @@ var (
 		Use:   "amabot",
 		Short: "amabot is a Discord Bot developed by @Amadeus_vn for personal use.",
 	}
-	// Value of Discord API token
-	token string
 	// Path of the configuration file for this tool
-	config = ""
+	config_path = ""
 )
 
 func init() {
-	rootCmd.Flags().StringVarP(&token, "token", "t", "", "Value of Discord API token")
-	rootCmd.PersistentFlags().StringVarP(&config, "config", "c", "", "Path of the configuration file for this tool")
+	// Flags of rootCmd
+	rootCmd.PersistentFlags().StringVar(&config_path, "config-path", "", "Path of the configuration file for this tool")
+
+	// Flags of Amabot
+	rootCmd.PersistentFlags().StringP("token", "t", "", "Value of Discord API token")
+	rootCmd.PersistentFlags().String("opts-prefix", ">>", "Prefix to fire MessageCmds")
+	rootCmd.PersistentFlags().Duration("opts-timeout", 2*time.Second, "Set timeout duration")
+
 	// Read configuration file when it exists.
 	cobra.OnInitialize(func() {
-		if config != "" {
-			_, err := os.Stat(config)
+		if config_path != "" {
+			_, err := os.Stat(config_path)
 			cobra.CheckErr(err)
-			viper.SetConfigFile(config)
+			viper.SetConfigFile(config_path)
 		} else {
 			home, err := os.UserHomeDir()
 			cobra.CheckErr(err)
@@ -61,7 +66,9 @@ func init() {
 		viper.SetEnvPrefix("AMABOT")
 		viper.AutomaticEnv()
 
-		token = viper.GetString("token")
+		viper.BindPFlag("token", rootCmd.Flags().Lookup("token"))
+		viper.BindPFlag("opts-prefix", rootCmd.Flags().Lookup("opts-prefix"))
+		viper.BindPFlag("opts-timeout", rootCmd.Flags().Lookup("opts-timeout"))
 	})
 }
 
@@ -75,9 +82,12 @@ func main() {
 	// 		}
 	// 	}
 	// }()
-
 	rootCmd.Run = func(cmd *cobra.Command, args []string) {
-		amabot, e := libamabot.New(token)
+		opts := libamabot.NewAmabotOptions()
+		opts.SetMessageCmdPrefix(viper.GetString("opts-prefix"))
+		opts.SetTimeoutDuration(viper.GetDuration("opts-timeout"))
+		token := viper.GetString("token")
+		amabot, e := libamabot.New(token, opts)
 		cobra.CheckErr(e)
 		cobra.CheckErr(amabot.Run())
 		defer amabot.Close()

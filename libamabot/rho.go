@@ -12,9 +12,9 @@ import (
 
 func init() {
 	messageCmd(
-		func(ctx context.Context, s *discordgo.Session, m *discordgo.MessageCreate) {
+		func(ctx context.Context, opts AmabotOptions, s *discordgo.Session, m *discordgo.MessageCreate) {
 			s.ChannelTyping(m.ChannelID)
-			prefix := ctx.Value("prefix").(string)
+			prefix := opts.GetMessageCmdPrefix()
 			cmd := ctx.Value("cmd").(string)
 			num_str := m.Content[len(prefix)+len(cmd):]
 			//数値にする

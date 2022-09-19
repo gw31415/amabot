@@ -12,23 +12,56 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
+type AmabotOptions struct {
+	messageCmdPrefix string
+	timeoutDuration  time.Duration
+	enabledHandlers  []string
+}
+
+func NewAmabotOptions() AmabotOptions {
+	return AmabotOptions{
+		messageCmdPrefix: ">>",
+		timeoutDuration:  2 * time.Second,
+		enabledHandlers:  GetAllHandlersList(),
+	}
+}
+
+func (opts *AmabotOptions) GetMessageCmdPrefix() string {
+	return opts.messageCmdPrefix
+}
+func (opts *AmabotOptions) SetMessageCmdPrefix(prefix string) {
+	opts.messageCmdPrefix = prefix
+}
+func (opts *AmabotOptions) GetTimeoutDuration() time.Duration {
+	return opts.timeoutDuration
+}
+func (opts *AmabotOptions) SetTimeoutDuration(duration time.Duration) {
+	opts.timeoutDuration = duration
+}
+func (opts *AmabotOptions) GetEnabledHandlers() []string {
+	return opts.enabledHandlers
+}
+func (opts *AmabotOptions) SetEnabledHandlers(handlers []string) {
+	opts.enabledHandlers = handlers
+}
+
 // Amabot instance
 type Amabot struct {
-	discord          *discordgo.Session
-	isRunning        bool
-	enabled_handlers []string
+	discord   *discordgo.Session
+	isRunning bool
+	opts      AmabotOptions
 }
 
 // Create new Amabot instance
-func New(token string) (*Amabot, error) {
+func New(token string, opts AmabotOptions) (*Amabot, error) {
 	discord_session, err := discordgo.New("Bot " + token)
 	if err != nil {
 		return nil, err
 	}
 	return &Amabot{
-		discord:          discord_session,
-		isRunning:        false,
-		enabled_handlers: GetAllHandlersList(),
+		discord:   discord_session,
+		isRunning: false,
+		opts:      opts,
 	}, nil
 }
 
@@ -38,12 +71,12 @@ func (ama *Amabot) Run() error {
 		ama.Close()
 		return ama.Run()
 	}
-	for _, id := range ama.enabled_handlers {
+	for _, id := range ama.opts.GetEnabledHandlers() {
 		if h := handlers_db[id]; h == nil {
 			return errors.New("handler not found named: " + id)
 		} else {
 			for _, h := range h {
-				ama.discord.AddHandler(h)
+				ama.discord.AddHandler(h(ama.opts))
 			}
 		}
 	}
@@ -68,24 +101,24 @@ func (ama *Amabot) Close() error {
 	return errors.New("unknown error on Closing")
 }
 
-// Update the list of enabled Handlers
-func (ama *Amabot) UpdateEnabledHandlers(ids ...string) error {
+// Update AmabotOptions
+func (ama *Amabot) UpdateOptions(opts AmabotOptions) error {
 	runned := ama.isRunning
 	if runned {
 		if err := ama.Close(); err != nil {
 			return err
 		}
 	}
-	ama.enabled_handlers = ids
+	ama.opts = opts
 	if runned {
 		ama.Run()
 	}
 	return nil
 }
 
-// Get the list of id of enabled handlers
-func (ama *Amabot) GetEnabledHandlers() []string {
-	return ama.enabled_handlers
+// Get AmabotOptions
+func (ama *Amabot) GetOptions() AmabotOptions {
+	return ama.opts
 }
 
 // Get the list of all handlers
@@ -99,67 +132,66 @@ func GetAllHandlersList() []string {
 
 // The database that all handlers are in.
 // DO NOT EDIT DIRECTRY
-var handlers_db map[string][]interface{}
-
-const MESSAGECMD_PREFIX = ">>"
+var handlers_db map[string][](func(AmabotOptions) interface{})
 
 // Implement simple commands with message content intent
 // handler : Handler to be registered
-func messageCmd(handler func(ctx context.Context, s *discordgo.Session, m *discordgo.MessageCreate)) {
+func messageCmd(handler func(ctx context.Context, opts AmabotOptions, s *discordgo.Session, m *discordgo.MessageCreate)) {
 	if handlers_db == nil {
-		handlers_db = make(map[string][]interface{}, 0)
+		handlers_db = make(map[string][](func(AmabotOptions) interface{}), 0)
 	}
 	_, name, _, _ := runtime.Caller(1) // Get the module filename
 	name = filepath.Base(name[:len(name)-len(filepath.Ext(name))])
 	if handlers_db[name] == nil {
-		handlers_db[name] = make([]interface{}, 0)
+		handlers_db[name] = make([](func(AmabotOptions) interface{}), 0)
 	}
-	handlers_db[name] = append(handlers_db[name], func(s *discordgo.Session, m *discordgo.MessageCreate) {
-		if m.Author.ID == s.State.User.ID {
-			return
-		}
-		if m.Author.Bot {
-			return
-		}
-		// The written file name becomes a command.
-		// ex rho.go -> the command pattern is `>>rho`
-		if len(m.Content) < len(name)+2 {
-			return
-		}
-		if m.Content[:len(name)+2] != MESSAGECMD_PREFIX+name {
-			return
-		}
-		defer func() {
-			if err := recover(); err != nil {
-				s.ChannelMessageSendEmbed(m.ChannelID, &discordgo.MessageEmbed{
-					Title:       "Error",
-					Color:       0xff0000,
-					Description: "``` " + strings.ReplaceAll(fmt.Sprint(err), "```", " `` ") + " ```",
-				})
+	handlers_db[name] = append(handlers_db[name], func(o AmabotOptions) interface{} {
+		return func(s *discordgo.Session, m *discordgo.MessageCreate) {
+			if m.Author.ID == s.State.User.ID {
+				return
 			}
-		}()
-		watch_res := make(chan struct{})
-		watch_err := make(chan interface{})
-		watch_timeout, c1 := context.WithTimeout(context.Background(), 0xfff*time.Millisecond)
-		defer c1()
-		childCtx := context.WithValue(watch_timeout, "prefix", MESSAGECMD_PREFIX)
-		childCtx = context.WithValue(childCtx, "cmd", name)
-		go func() {
+			if m.Author.Bot {
+				return
+			}
+			// The written file name becomes a command.
+			// ex rho.go; messageCmdPrefix == ">>" -> the command pattern is `>>rho`
+			if len(m.Content) < len(name)+len(o.GetMessageCmdPrefix()) {
+				return
+			}
+			if m.Content[:len(name)+len(o.GetMessageCmdPrefix())] != o.GetMessageCmdPrefix()+name {
+				return
+			}
 			defer func() {
 				if err := recover(); err != nil {
-					watch_err <- err
+					s.ChannelMessageSendEmbed(m.ChannelID, &discordgo.MessageEmbed{
+						Title:       "Error",
+						Color:       0xff0000,
+						Description: "``` " + strings.ReplaceAll(fmt.Sprint(err), "```", " `` ") + " ```",
+					})
 				}
 			}()
-			handler(childCtx, s, m)
-			close(watch_res)
-		}()
-		select {
-		case err := <-watch_err:
-			panic(err)
-		case <-watch_res:
-			return
-		case <-watch_timeout.Done():
-			panic("timeout")
+			watch_res := make(chan struct{})
+			watch_err := make(chan interface{})
+			watch_timeout, c1 := context.WithTimeout(context.Background(), o.GetTimeoutDuration())
+			defer c1()
+			childCtx := context.WithValue(watch_timeout, "cmd", name)
+			go func() {
+				defer func() {
+					if err := recover(); err != nil {
+						watch_err <- err
+					}
+				}()
+				handler(childCtx, o, s, m)
+				close(watch_res)
+			}()
+			select {
+			case err := <-watch_err:
+				panic(err)
+			case <-watch_res:
+				return
+			case <-watch_timeout.Done():
+				panic("timeout")
+			}
 		}
 	})
 }

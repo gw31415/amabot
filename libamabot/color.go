@@ -16,8 +16,8 @@ func rgbaToInt(c color.RGBA) int {
 }
 
 func init() {
-	messageCmd(func(ctx context.Context, s *discordgo.Session, m *discordgo.MessageCreate) {
-		prefix := ctx.Value("prefix").(string)
+	messageCmd(func(ctx context.Context, opts AmabotOptions, s *discordgo.Session, m *discordgo.MessageCreate) {
+		prefix := opts.GetMessageCmdPrefix()
 		cmd := ctx.Value("cmd").(string)
 		arg := strings.TrimSpace(m.Content[len(prefix)+len(cmd):])
 		for _, name := range colornames.Names {
