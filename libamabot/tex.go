@@ -40,6 +40,7 @@ func init() {
 		if err != nil {
 			panic(err)
 		}
+		defer tmp_png.Close()
 		defer os.Remove(tmp_png.Name())
 		reader := strings.NewReader(tex)
 		err = tex2ps(tmp_png.Name(), os.Stderr, reader)
@@ -85,11 +86,11 @@ func tex2ps(file_path string, stderr io.Writer, stdin io.Reader) error {
 	// you must use a pipe, write a shell script that copies the pipe output to
 	// a temporary file and then points dvips at this file.
 	tmp_dvi, err := os.CreateTemp("", "tmp_dvips")
-	defer tmp_dvi.Close()
-	defer os.Remove(tmp_dvi.Name())
 	if err != nil {
 		return err
 	}
+	defer tmp_dvi.Close()
+	defer os.Remove(tmp_dvi.Name())
 	dummy_r, _ := io.Pipe()
 	tex2dvi := tex.NewEngine(stderr, dummy_r)
 	err = tex2dvi.Process(tmp_dvi, stdin)
@@ -98,11 +99,11 @@ func tex2ps(file_path string, stderr io.Writer, stdin io.Reader) error {
 	}
 
 	tmp_ps, err := os.CreateTemp("", "tmp_dvips")
-	defer tmp_ps.Close()
-	defer os.Remove(tmp_ps.Name())
 	if err != nil {
 		return err
 	}
+	defer tmp_ps.Close()
+	defer os.Remove(tmp_ps.Name())
 	dvips := exec.Command("dvips", "-f")
 	dvips.Stdin = tmp_dvi
 	dvips.Stdout = tmp_ps
@@ -113,11 +114,11 @@ func tex2ps(file_path string, stderr io.Writer, stdin io.Reader) error {
 	}
 
 	tmp_eps, err := os.CreateTemp("", "tmp_gs_ps2eps")
-	defer tmp_eps.Close()
-	defer os.Remove(tmp_eps.Name())
 	if err != nil {
 		return err
 	}
+	defer tmp_eps.Close()
+	defer os.Remove(tmp_eps.Name())
 	gs_ps2eps, _ := ghostscript.NewInstance()
 	gs_ps2eps.Init([]string{
 		"gs",
