@@ -91,6 +91,47 @@ func (ama *Amabot) Run() error {
 			}
 		}
 	}
+	ama.discord.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+		o := ama.opts
+		defer func() {
+			if err := recover(); err != nil {
+				s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+					Type: discordgo.InteractionResponseChannelMessageWithSource,
+					Data: &discordgo.InteractionResponseData{
+						Flags: discordgo.MessageFlagsEphemeral,
+						Embeds: []*discordgo.MessageEmbed{
+							{
+								Title:       "Error",
+								Color:       0xff0000,
+								Description: "``` " + strings.ReplaceAll(fmt.Sprint(err), "```", " `` ") + " ```",
+							},
+						},
+					},
+				})
+			}
+		}()
+		watch_res := make(chan struct{})
+		watch_err := make(chan interface{})
+		watch_timeout, cancel := context.WithTimeout(context.Background(), o.GetTimeoutDuration())
+		defer cancel()
+		go func() {
+			defer func() {
+				if err := recover(); err != nil {
+					watch_err <- err
+				}
+			}()
+			appcmd_handlers_db[i.ApplicationCommandData().Name](watch_timeout, o, s, i)
+			close(watch_res)
+		}()
+		select {
+		case err := <-watch_err:
+			panic(err)
+		case <-watch_res:
+			return
+		case <-watch_timeout.Done():
+			panic("timeout")
+		}
+	})
 	if err := ama.discord.Open(); err != nil {
 		ama.isRunning = false
 		return err
@@ -175,6 +216,10 @@ var handlers_db map[string][](func(AmabotOptions) interface{})
 // DO NOT EDIT DIRECTRY
 var appcmd_db map[string][]*discordgo.ApplicationCommand
 
+// The database that all ApplicationCommand-handlers are in.
+// DO NOT EDIT DIRECTRY
+var appcmd_handlers_db map[string]func(context.Context, AmabotOptions, *discordgo.Session, *discordgo.InteractionCreate)
+
 // Implement slash commands
 // appCmd : ApplicationCommand to be registered
 // handler : Handler to be registered
@@ -196,52 +241,10 @@ func slashCmd(appCmd *discordgo.ApplicationCommand, handler func(ctx context.Con
 	}
 
 	// Setup handlers_db
-	if handlers_db == nil {
-		handlers_db = make(map[string][](func(AmabotOptions) interface{}), 0)
+	if appcmd_handlers_db == nil {
+		appcmd_handlers_db = make(map[string]func(context.Context, AmabotOptions, *discordgo.Session, *discordgo.InteractionCreate))
 	}
-	handlers_db[name] = append(handlers_db[name], func(o AmabotOptions) interface{} {
-		return func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			defer func() {
-				if err := recover(); err != nil {
-					s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-						Type: discordgo.InteractionResponseChannelMessageWithSource,
-						Data: &discordgo.InteractionResponseData{
-							Flags: discordgo.MessageFlagsEphemeral,
-							Embeds: []*discordgo.MessageEmbed{
-								{
-									Title:       "Error",
-									Color:       0xff0000,
-									Description: "``` " + strings.ReplaceAll(fmt.Sprint(err), "```", " `` ") + " ```",
-								},
-							},
-						},
-					})
-				}
-			}()
-			watch_res := make(chan struct{})
-			watch_err := make(chan interface{})
-			watch_timeout, c1 := context.WithTimeout(context.Background(), o.GetTimeoutDuration())
-			defer c1()
-			childCtx := context.WithValue(watch_timeout, "cmd", name)
-			go func() {
-				defer func() {
-					if err := recover(); err != nil {
-						watch_err <- err
-					}
-				}()
-				handler(childCtx, o, s, i)
-				close(watch_res)
-			}()
-			select {
-			case err := <-watch_err:
-				panic(err)
-			case <-watch_res:
-				return
-			case <-watch_timeout.Done():
-				panic("timeout")
-			}
-		}
-	})
+	appcmd_handlers_db[appCmd.Name] = handler
 }
 
 // Implement simple commands with message content intent
