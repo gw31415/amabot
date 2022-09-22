@@ -84,7 +84,10 @@ func (ama *Amabot) Run() error {
 	}
 	for _, id := range ama.opts.GetEnabledHandlers() {
 		if h := handlers_db[id]; h == nil {
-			return errors.New("handler not found named: " + id)
+			if appcmd_handlers_db[id] == nil {
+				// If there is a handler that is not in the handlers_db or appcmd_handlers_db
+				return errors.New("handler not found named: " + id)
+			}
 		} else {
 			for _, h := range h {
 				ama.discord.AddHandler(h(ama.opts))
@@ -201,8 +204,15 @@ func (ama *Amabot) GetOptions() AmabotOptions {
 
 // Get the list of all handlers
 func GetAllHandlersList() []string {
-	keys := make([]string, 0, len(handlers_db))
+	key_map := make(map[string]bool)
 	for k := range handlers_db {
+		key_map[k] = false
+	}
+	for k := range appcmd_handlers_db {
+		key_map[k] = false
+	}
+	keys := make([]string, 0, len(key_map))
+	for k := range key_map {
 		keys = append(keys, k)
 	}
 	return keys
@@ -236,9 +246,6 @@ func slashCmd(appCmd *discordgo.ApplicationCommand, handler func(ctx context.Con
 		appcmd_db[name] = make([]*discordgo.ApplicationCommand, 0)
 	}
 	appcmd_db[name] = append(appcmd_db[name], appCmd)
-	if handlers_db[name] == nil {
-		handlers_db[name] = make([](func(AmabotOptions) interface{}), 0)
-	}
 
 	// Setup handlers_db
 	if appcmd_handlers_db == nil {
