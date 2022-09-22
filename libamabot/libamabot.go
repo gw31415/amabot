@@ -204,12 +204,12 @@ func (ama *Amabot) GetOptions() AmabotOptions {
 
 // Get the list of all handlers
 func GetAllHandlersList() []string {
-	key_map := make(map[string]bool)
+	key_map := make(map[string]struct{})
 	for k := range handlers_db {
-		key_map[k] = false
+		key_map[k] = struct{}{}
 	}
 	for k := range appcmd_handlers_db {
-		key_map[k] = false
+		key_map[k] = struct{}{}
 	}
 	keys := make([]string, 0, len(key_map))
 	for k := range key_map {
