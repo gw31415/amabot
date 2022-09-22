@@ -141,9 +141,12 @@ func tex2ps(file_path string, stderr io.Writer, stdin io.Reader) error {
 		"-dBATCH",
 		"-dSAFER",
 		"-dNOPAUSE",
+		"-dGraphicsAlphaBits=2",
+		"-dTextAlphaBits=2",
+		"-dDownScaleFactor=2",
 		"-r750",
 		"-dEPSCrop",
-		"-sDEVICE=png256",
+		"-sDEVICE=pnggray",
 		"-sOutputFile=" + file_path,
 		tmp_eps.Name(),
 	})
