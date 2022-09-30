@@ -14,6 +14,12 @@ import (
 	"star-tex.org/x/tex"
 )
 
+type nullreader struct{}
+
+func (nullreader) Read(b []byte) (int, error) {
+	return 0, nil
+}
+
 func init() {
 	slashCmd(&discordgo.ApplicationCommand{
 		Name:        "tex",
@@ -91,8 +97,7 @@ func tex2ps(file_path string, stderr io.Writer, stdin io.Reader) error {
 	}
 	defer tmp_dvi.Close()
 	defer os.Remove(tmp_dvi.Name())
-	dummy_r, _ := io.Pipe()
-	tex2dvi := tex.NewEngine(stderr, dummy_r)
+	tex2dvi := tex.NewEngine(stderr, nullreader{})
 	err = tex2dvi.Process(tmp_dvi, stdin)
 	if err != nil {
 		return err
