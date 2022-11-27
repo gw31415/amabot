@@ -143,13 +143,21 @@ func (ama *Amabot) Run() error {
 		for _, id := range ama.opts.GetEnabledHandlers() {
 			if cmds := appcmd_db[id]; cmds != nil {
 				for _, cmd := range cmds {
-					for _, guild := range ama.opts.GetAppCmdGuildIds() {
-						cmd, err := ama.discord.ApplicationCommandCreate(ama.discord.State.User.ID, guild, cmd)
-						if err != nil {
-							log.Println(err)
+					if cmd.GuildID == "" {
+						var guilds []string
+						if cmd.GuildID == "" {
+							guilds = ama.opts.GetAppCmdGuildIds()
 						} else {
-							log.Println("Registered Appcmd:", cmd.Name, guild)
-							ama.registeredAppCmdsInGuild[guild] = append(ama.registeredAppCmdsInGuild[guild], cmd)
+							guilds = []string{cmd.GuildID}
+						}
+						for _, guild := range guilds {
+							cmd, err := ama.discord.ApplicationCommandCreate(ama.discord.State.User.ID, guild, cmd)
+							if err != nil {
+								log.Println(err)
+							} else {
+								log.Println("Registered Appcmd:", cmd.Name, guild)
+								ama.registeredAppCmdsInGuild[guild] = append(ama.registeredAppCmdsInGuild[guild], cmd)
+							}
 						}
 					}
 				}
