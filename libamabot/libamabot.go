@@ -264,10 +264,10 @@ func messageCmd(handler func(ctx context.Context, opts AmabotOptions, s *discord
 			}
 			// The written file name becomes a command.
 			// ex rho.go; messageCmdPrefix == ">>" -> the command pattern is `>>rho`
-			if len(m.Content) < len(name)+len(o.GetMessageCmdPrefix()) {
+			if len(m.Content) < len(name)+len(o.MessageCmdPrefix) {
 				return
 			}
-			if m.Content[:len(name)+len(o.GetMessageCmdPrefix())] != o.GetMessageCmdPrefix()+name {
+			if m.Content[:len(name)+len(o.MessageCmdPrefix)] != o.MessageCmdPrefix+name {
 				return
 			}
 			defer func() {
