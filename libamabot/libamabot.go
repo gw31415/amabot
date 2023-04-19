@@ -245,7 +245,7 @@ func getFileName() string {
 
 // Implement simple commands with raw message content intent
 // handler : Handler to be registered
-func messageCmd(handler func(ctx context.Context, opts AmabotOptions, s *discordgo.Session, m *discordgo.MessageCreate)) {
+func rawMessageCmd(handler func(ctx context.Context, opts AmabotOptions, s *discordgo.Session, m *discordgo.MessageCreate), errorOutput bool) {
 	if handlers_db == nil {
 		handlers_db = make(map[string][](func(AmabotOptions) interface{}), 0)
 	}
@@ -262,16 +262,8 @@ func messageCmd(handler func(ctx context.Context, opts AmabotOptions, s *discord
 			if m.Author.Bot {
 				return
 			}
-			// The written file name becomes a command.
-			// ex rho.go; messageCmdPrefix == ">>" -> the command pattern is `>>rho`
-			if len(m.Content) < len(name)+len(o.MessageCmdPrefix) {
-				return
-			}
-			if m.Content[:len(name)+len(o.MessageCmdPrefix)] != o.MessageCmdPrefix+name {
-				return
-			}
 			defer func() {
-				if err := recover(); err != nil {
+				if err := recover(); errorOutput && err != nil {
 					s.ChannelMessageSendEmbed(m.ChannelID, &discordgo.MessageEmbed{
 						Title:       "Error",
 						Color:       0xff0000,
@@ -303,4 +295,21 @@ func messageCmd(handler func(ctx context.Context, opts AmabotOptions, s *discord
 			}
 		}
 	})
+}
+
+// Implement simple commands with message content intent
+// handler : Handler to be registered
+func messageCmd(handler func(ctx context.Context, opts AmabotOptions, s *discordgo.Session, m *discordgo.MessageCreate)) {
+	rawMessageCmd(func(ctx context.Context, opts AmabotOptions, s *discordgo.Session, m *discordgo.MessageCreate) {
+		name := getFileName()
+		// The written file name becomes a command.
+		// ex rho.go; messageCmdPrefix == ">>" -> the command pattern is `>>rho`
+		if len(m.Content) < len(name)+len(opts.MessageCmdPrefix) {
+			return
+		}
+		if m.Content[:len(name)+len(opts.MessageCmdPrefix)] != opts.MessageCmdPrefix+name {
+			return
+		}
+		handler(ctx, opts, s, m)
+	}, true)
 }
