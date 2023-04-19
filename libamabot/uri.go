@@ -11,7 +11,7 @@ import (
 
 func init() {
 	messageCmd(func(ctx context.Context, opts AmabotOptions, s *discordgo.Session, m *discordgo.MessageCreate) {
-		prefix := opts.GetMessageCmdPrefix()
+		prefix := opts.MessageCmdPrefix
 		cmd := ctx.Value("cmd").(string)
 		cmd_len := len(prefix) + len(cmd)
 		if m.Content[cmd_len:cmd_len+6] == "encode" {

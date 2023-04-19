@@ -14,44 +14,19 @@ import (
 )
 
 type AmabotOptions struct {
-	messageCmdPrefix string
-	timeoutDuration  time.Duration
-	enabledHandlers  []string
-	appCmdGuildIds   []string
+	MessageCmdPrefix string
+	TimeoutDuration  time.Duration
+	EnabledHandlers  []string
+	AppCmdGuildIds   []string
 }
 
-func NewAmabotOptions() AmabotOptions {
+func DefaultAmabotOptions() AmabotOptions {
 	return AmabotOptions{
-		messageCmdPrefix: ">>",
-		timeoutDuration:  2 * time.Second,
-		enabledHandlers:  GetAllHandlersList(),
-		appCmdGuildIds:   make([]string, 0),
+		MessageCmdPrefix: ">>",
+		TimeoutDuration:  2 * time.Second,
+		EnabledHandlers:  GetAllHandlersList(),
+		AppCmdGuildIds:   make([]string, 0),
 	}
-}
-
-func (opts *AmabotOptions) GetMessageCmdPrefix() string {
-	return opts.messageCmdPrefix
-}
-func (opts *AmabotOptions) SetMessageCmdPrefix(prefix string) {
-	opts.messageCmdPrefix = prefix
-}
-func (opts *AmabotOptions) GetTimeoutDuration() time.Duration {
-	return opts.timeoutDuration
-}
-func (opts *AmabotOptions) SetTimeoutDuration(duration time.Duration) {
-	opts.timeoutDuration = duration
-}
-func (opts *AmabotOptions) GetEnabledHandlers() []string {
-	return opts.enabledHandlers
-}
-func (opts *AmabotOptions) SetEnabledHandlers(handlers []string) {
-	opts.enabledHandlers = handlers
-}
-func (opts *AmabotOptions) GetAppCmdGuildIds() []string {
-	return opts.appCmdGuildIds
-}
-func (opts *AmabotOptions) SetAppCmdGuildIds(guildIds []string) {
-	opts.appCmdGuildIds = guildIds
 }
 
 // Amabot instance
@@ -82,7 +57,7 @@ func (ama *Amabot) Run() error {
 		ama.Close()
 		return ama.Run()
 	}
-	for _, id := range ama.opts.GetEnabledHandlers() {
+	for _, id := range ama.opts.EnabledHandlers {
 		if h := handlers_db[id]; h == nil {
 			if appcmd_handlers_db[id] == nil {
 				// If there is a handler that is not in the handlers_db or appcmd_handlers_db
@@ -115,7 +90,7 @@ func (ama *Amabot) Run() error {
 		}()
 		watch_res := make(chan struct{})
 		watch_err := make(chan interface{})
-		watch_timeout, cancel := context.WithTimeout(context.Background(), o.GetTimeoutDuration())
+		watch_timeout, cancel := context.WithTimeout(context.Background(), o.TimeoutDuration)
 		defer cancel()
 		go func() {
 			defer func() {
@@ -140,13 +115,13 @@ func (ama *Amabot) Run() error {
 		return err
 	} else {
 		// Register ApplicationCommands
-		for _, id := range ama.opts.GetEnabledHandlers() {
+		for _, id := range ama.opts.EnabledHandlers {
 			if cmds := appcmd_db[id]; cmds != nil {
 				for _, cmd := range cmds {
 					if cmd.GuildID == "" {
 						var guilds []string
 						if cmd.GuildID == "" {
-							guilds = ama.opts.GetAppCmdGuildIds()
+							guilds = ama.opts.AppCmdGuildIds
 						} else {
 							guilds = []string{cmd.GuildID}
 						}
@@ -170,7 +145,7 @@ func (ama *Amabot) Run() error {
 
 // Close session of Amabot
 func (ama *Amabot) Close() error {
-	for _, guild := range ama.opts.GetAppCmdGuildIds() {
+	for _, guild := range ama.opts.AppCmdGuildIds {
 		for _, cmd := range ama.registeredAppCmdsInGuild[guild] {
 			err := ama.discord.ApplicationCommandDelete(ama.discord.State.User.ID, guild, cmd.ID)
 			if err != nil {
@@ -262,14 +237,20 @@ func slashCmd(appCmd *discordgo.ApplicationCommand, handler func(ctx context.Con
 	appcmd_handlers_db[appCmd.Name] = handler
 }
 
-// Implement simple commands with message content intent
+// Get the module filename
+func getFileName() string {
+	_, name, _, _ := runtime.Caller(2) // Get the module filename
+	return filepath.Base(name[:len(name)-len(filepath.Ext(name))]) // Without Ext
+}
+
+// Implement simple commands with raw message content intent
 // handler : Handler to be registered
 func messageCmd(handler func(ctx context.Context, opts AmabotOptions, s *discordgo.Session, m *discordgo.MessageCreate)) {
 	if handlers_db == nil {
 		handlers_db = make(map[string][](func(AmabotOptions) interface{}), 0)
 	}
-	_, name, _, _ := runtime.Caller(1) // Get the module filename
-	name = filepath.Base(name[:len(name)-len(filepath.Ext(name))])
+	// Get the module filename
+	name := getFileName()
 	if handlers_db[name] == nil {
 		handlers_db[name] = make([](func(AmabotOptions) interface{}), 0)
 	}
@@ -300,7 +281,7 @@ func messageCmd(handler func(ctx context.Context, opts AmabotOptions, s *discord
 			}()
 			watch_res := make(chan struct{})
 			watch_err := make(chan interface{})
-			watch_timeout, c1 := context.WithTimeout(context.Background(), o.GetTimeoutDuration())
+			watch_timeout, c1 := context.WithTimeout(context.Background(), o.TimeoutDuration)
 			defer c1()
 			childCtx := context.WithValue(watch_timeout, "cmd", name)
 			go func() {

@@ -87,10 +87,10 @@ func main() {
 	// 	}
 	// }()
 	rootCmd.Run = func(cmd *cobra.Command, args []string) {
-		opts := libamabot.NewAmabotOptions()
-		opts.SetMessageCmdPrefix(viper.GetString("opts-prefix"))
-		opts.SetTimeoutDuration(viper.GetDuration("opts-timeout"))
-		opts.SetAppCmdGuildIds(viper.GetStringSlice("opts-guilds"))
+		opts := libamabot.DefaultAmabotOptions()
+		opts.MessageCmdPrefix = viper.GetString("opts-prefix")
+		opts.TimeoutDuration = viper.GetDuration("opts-timeout")
+		opts.AppCmdGuildIds = viper.GetStringSlice("opts-guilds")
 		token := viper.GetString("token")
 		amabot, e := libamabot.New(token, opts)
 		cobra.CheckErr(e)
