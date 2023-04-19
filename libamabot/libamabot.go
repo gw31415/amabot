@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/bwmarrin/discordgo"
+	"gorm.io/gorm"
 )
 
 type AmabotOptions struct {
@@ -18,15 +19,7 @@ type AmabotOptions struct {
 	TimeoutDuration  time.Duration
 	EnabledHandlers  []string
 	AppCmdGuildIds   []string
-}
-
-func DefaultAmabotOptions() AmabotOptions {
-	return AmabotOptions{
-		MessageCmdPrefix: ">>",
-		TimeoutDuration:  2 * time.Second,
-		EnabledHandlers:  GetAllHandlersList(),
-		AppCmdGuildIds:   make([]string, 0),
-	}
+	Db               *gorm.DB
 }
 
 // Amabot instance
@@ -239,7 +232,7 @@ func slashCmd(appCmd *discordgo.ApplicationCommand, handler func(ctx context.Con
 
 // Get the module filename
 func getFileName() string {
-	_, name, _, _ := runtime.Caller(2) // Get the module filename
+	_, name, _, _ := runtime.Caller(2)                             // Get the module filename
 	return filepath.Base(name[:len(name)-len(filepath.Ext(name))]) // Without Ext
 }
 

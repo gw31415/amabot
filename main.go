@@ -26,6 +26,8 @@ import (
 	"github.com/gw31415/amabot/libamabot"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 )
 
 var (
@@ -46,6 +48,7 @@ func init() {
 	rootCmd.PersistentFlags().String("opts-prefix", ">>", "Prefix to fire MessageCmds")
 	rootCmd.PersistentFlags().Duration("opts-timeout", 2*time.Second, "Set timeout duration")
 	rootCmd.PersistentFlags().StringSlice("opts-guilds", make([]string, 0), "GuildIds to register ApplicationCommands")
+	rootCmd.PersistentFlags().String("opts-sqlite", "amabot.sqlite3", "Sqlite3 Database-file to save data")
 
 	// Read configuration file when it exists.
 	cobra.OnInitialize(func() {
@@ -73,6 +76,7 @@ func init() {
 		viper.BindPFlag("opts-prefix", rootCmd.Flags().Lookup("opts-prefix"))
 		viper.BindPFlag("opts-timeout", rootCmd.Flags().Lookup("opts-timeout"))
 		viper.BindPFlag("opts-guilds", rootCmd.Flags().Lookup("opts-guilds"))
+		viper.BindPFlag("opts-sqlite", rootCmd.Flags().Lookup("opts-sqlite"))
 	})
 }
 
@@ -87,10 +91,17 @@ func main() {
 	// 	}
 	// }()
 	rootCmd.Run = func(cmd *cobra.Command, args []string) {
-		opts := libamabot.DefaultAmabotOptions()
-		opts.MessageCmdPrefix = viper.GetString("opts-prefix")
-		opts.TimeoutDuration = viper.GetDuration("opts-timeout")
-		opts.AppCmdGuildIds = viper.GetStringSlice("opts-guilds")
+		db, err := gorm.Open(sqlite.Open(viper.GetString("opts-sqlite")), &gorm.Config{})
+		if err != nil {
+			panic("failed to connect database.")
+		}
+		opts := libamabot.AmabotOptions{
+			MessageCmdPrefix: viper.GetString("opts-prefix"),
+			TimeoutDuration:  viper.GetDuration("opts-timeout"),
+			AppCmdGuildIds:   viper.GetStringSlice("opts-guilds"),
+			EnabledHandlers:  libamabot.GetAllHandlersList(),
+			Db:               db,
+		}
 		token := viper.GetString("token")
 		amabot, e := libamabot.New(token, opts)
 		cobra.CheckErr(e)
