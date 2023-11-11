@@ -1,16 +1,15 @@
-FROM golang:latest as builder
-RUN apt update
-RUN apt install -y libgs-dev
-WORKDIR /builder
+FROM rust:latest as builder
+
+WORKDIR /usr/src/app
 COPY . .
-RUN go build -o /builder/amabot
+RUN --mount=type=cache,target=/usr/local/cargo,from=rust:latest,source=/usr/local/cargo \
+    --mount=type=cache,target=target \
+    cargo build --release && mv ./target/release/amabot ./amabot
 
 FROM alpine:latest
-RUN mkdir /lib64
-RUN ln -s /lib/libc.musl-x86_64.so.1 /lib64/ld-linux-x86-64.so.2
-RUN apk add texlive-dvi ghostscript-dev
-WORKDIR /ama
-RUN adduser -h /ama -HDS ama
-USER ama
-COPY --from=builder /builder/amabot /ama/amabot
-CMD [ "/ama/amabot" ]
+RUN apk --no-cache add font-noto-cjk-extra
+RUN adduser -S app
+USER app
+WORKDIR /app
+COPY --from=builder /usr/src/app/amabot /app/amabot
+CMD /app/amabot

@@ -1,5 +1,6 @@
-/target
-.env
+# flyctl launch added from .gitignore
+target
+**/.env
 
 
 # Added by cargo
@@ -7,3 +8,4 @@
 # already existing elements were commented out
 
 #/target
+fly.toml
