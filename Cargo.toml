@@ -19,8 +19,11 @@ log = { version = "0.4.20", optional = true }
 png = "0.17.10"
 
 [features]
+# Read environment variables from the `.env` file
 dotenv = ["dotenvy"]
+# Output log
 logger = ["env_logger", "log"]
+# Load font files in the current directory instead of loading system fonts
 pwd_font = []
 
 # for the ./Dockerfile
