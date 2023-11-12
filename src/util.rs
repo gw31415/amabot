@@ -47,7 +47,13 @@ pub fn math_to_png(math: impl AsRef<str>) -> Result<Vec<u8>, crate::Error> {
                 let mut tree = Tree::from_data(&svg_data, &opt)?;
                 tree.convert_text(FONTDB.get_or_init(|| {
                     let mut fdb = fontdb::Database::new();
+
+                    // load fonts
+                    #[cfg(not(feature = "pwd_font"))]
                     fdb.load_system_fonts();
+                    #[cfg(feature = "pwd_font")]
+                    fdb.load_fonts_dir(".");
+
                     // Set default serif font
                     fdb.set_serif_family(FONT_FAMILY);
                     fdb

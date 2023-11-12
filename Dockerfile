@@ -3,17 +3,10 @@ WORKDIR /usr/src/app
 COPY . .
 RUN --mount=type=cache,target=/usr/local/cargo,from=rust:slim,source=/usr/local/cargo \
     --mount=type=cache,target=target \
-    cargo build --release && mv ./target/release/amabot ./amabot
+    cargo build --release --features docker && mv ./target/release/amabot ./amabot
 
-FROM debian:stable-slim
-RUN apt-get update \
- && apt-get install -y --no-install-recommends \
-    fontconfig \
-    fonts-noto-cjk-extra \
- && apt-get -y clean \
- && rm -rf /var/lib/apt/lists/* \
- && useradd app
-USER app
-COPY --from=builder /usr/src/app/amabot /home/app/amabot
-WORKDIR /home/app
-CMD ["/home/app/amabot"]
+FROM gcr.io/distroless/cc-debian12
+COPY --from=builder /usr/src/app/amabot /app/amabot
+WORKDIR /app
+ADD https://github.com/notofonts/noto-cjk/raw/727f898acdf7b100d308af8edf63c3953b626a1b/Serif/SubsetOTF/JP/NotoSerifJP-Regular.otf .
+CMD ["/app/amabot"]

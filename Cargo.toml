@@ -21,4 +21,9 @@ png = "0.17.10"
 [features]
 dotenv = ["dotenvy"]
 logger = ["env_logger", "log"]
+pwd_font = []
+
+# for the ./Dockerfile
+docker = ["logger", "pwd_font"]
+# default
 default = ["logger"]
