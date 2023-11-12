@@ -11,8 +11,8 @@ RUN apt-get update \
     fontconfig \
     fonts-noto-cjk-extra \
  && apt-get -y clean \
- && rm -rf /var/lib/apt/lists/*
-RUN useradd app
+ && rm -rf /var/lib/apt/lists/* \
+ && useradd app
 USER app
 COPY --from=builder /usr/src/app/amabot /home/app/amabot
 WORKDIR /home/app
