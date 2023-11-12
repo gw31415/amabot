@@ -6,8 +6,14 @@ RUN --mount=type=cache,target=/usr/local/cargo,from=rust:slim,source=/usr/local/
     cargo build --release && mv ./target/release/amabot ./amabot
 
 FROM debian:stable-slim
-RUN useradd -m app
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
+    fontconfig \
+    fonts-noto-cjk-extra \
+ && apt-get -y clean \
+ && rm -rf /var/lib/apt/lists/*
+RUN useradd app
 USER app
-COPY --from=builder /usr/src/app/amabot /app/amabot
-WORKDIR /app
-CMD ["/app/amabot"]
+COPY --from=builder /usr/src/app/amabot /home/app/amabot
+WORKDIR /home/app
+CMD ["/home/app/amabot"]
