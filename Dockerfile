@@ -13,6 +13,6 @@ RUN --mount=type=cache,target=/usr/local/cargo,from=rust:slim,source=/usr/local/
 
 FROM gcr.io/distroless/cc-debian12:latest
 WORKDIR /app
-COPY --from=downloader /noto-cjk/NotoSerifCJKjp-Regular.otf /app/amabot
+COPY --from=downloader /noto-cjk/NotoSerifCJKjp-Regular.otf .
 COPY --from=builder /usr/src/app/amabot /app/amabot
 CMD ["/app/amabot"]
