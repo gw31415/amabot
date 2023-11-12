@@ -26,6 +26,8 @@ logger = ["env_logger", "log"]
 # Load font files in the current directory instead of loading system fonts
 pwd_font = []
 
+# for development
+dev = ["default", "dotenv"]
 # for the ./Dockerfile
 docker = ["logger", "pwd_font"]
 # default
