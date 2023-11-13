@@ -1,7 +1,19 @@
 name: Deploy to Fly
-on: [push]
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - README.md
+  pull_request:
+    branches: [main]
+    types: [closed]
+    paths-ignore:
+      - README.md
+
 jobs:
   deploy:
+    if: github.event.pull_request.merged == true || github.event_name == 'push'
     name: Deploy proxy
     runs-on: ubuntu-latest
     steps:
