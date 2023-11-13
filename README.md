@@ -1,6 +1,10 @@
 # Amabot
 
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
+
 A high performance, simple Discord bot for science majors, written in Rust.
+
+- [INVITE LINK](https://discord.com/api/oauth2/authorize?client_id=603145258188013568&permissions=0&scope=bot)
 
 ## List of commands
 
