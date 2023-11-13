@@ -18,7 +18,7 @@ A high performance, simple Discord bot for science majors, written in Rust.
 
   | Platform         | Font                   |
   | ---------------- | ---------------------- |
-  | Macos            | `Hiragino Mincho ProN` |
+  | MacOS            | `Hiragino Mincho ProN` |
   | Windows          | `Yu Mincho`            |
   | Linux and others | `Noto Serif CJK JP`    |
 
