@@ -6,6 +6,8 @@ A high performance, simple Discord bot for science majors, written in Rust.
 
 - [INVITE LINK](https://discord.com/api/oauth2/authorize?client_id=603145258188013568&permissions=0&scope=bot)
 
+<img width="399" alt="image" src="https://github.com/gw31415/amabot/assets/24710985/538b76a2-9cb3-4e45-93aa-ac7b3c3ccb7f">
+
 ## List of commands
 
 - `/tex`: Render math expression using Mathjax.
