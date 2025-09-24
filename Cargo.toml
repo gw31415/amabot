@@ -7,7 +7,7 @@ edition = "2021"
 
 [dependencies]
 anyhow = "1.0.100"
-mathjax_svg = "3.1.2"
+mathjax_svg = "3.2.0"
 poise = "0.5.7"
 resvg = "0.37.0"
 thiserror = "2.0.16"
