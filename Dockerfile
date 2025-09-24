@@ -2,7 +2,7 @@
 FROM alpine:latest as downloader
 WORKDIR /noto-cjk
 RUN apk add --no-cache unzip curl
-RUN curl -O https://noto-website.storage.googleapis.com/pkgs/NotoSerifCJKjp-hinted.zip && \
+RUN curl -O https://noto-website-2.storage.googleapis.com/pkgs/NotoSerifCJKjp-hinted.zip && \
     unzip NotoSerifCJKjp-hinted.zip
 
 # Build
