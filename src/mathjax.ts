@@ -20,6 +20,7 @@ export async function renderMathSvg(
   try {
     const svgNode = await mathDocument.convert(latex, options);
     const svgString = adaptor.outerHTML(svgNode);
+    const svgTag = svgString.match(/<svg[^>]*>[\s\S]*<\/svg>/g)![0];
 
     if (svgString.includes("data-mjx-error")) {
       const titleMatch = svgString.match(/title="([^"]+)"/);
@@ -27,7 +28,7 @@ export async function renderMathSvg(
       throw new Error(title);
     }
 
-    return svgString;
+    return svgTag;
   } catch (error) {
     console.error("MathJax rendering error:", error);
     throw new Error(
