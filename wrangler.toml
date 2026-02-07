@@ -1,0 +1,9 @@
+name = "amabot"
+main = "dist/index.js"
+compatibility_date = "2025-09-27"
+compatibility_flags = ["nodejs_compat"]
+
+[observability]
+enabled = true
+
+#:schema ./node_modules/wrangler/config-schema.json
