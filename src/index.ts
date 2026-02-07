@@ -1,6 +1,7 @@
 import { Command, createFactory, Embed, Option } from "discord-hono";
 import { renderMathSvg } from "./mathjax";
 import { svgToPngBlob } from "./svg2png";
+import { applyPaddingAndBackgroundToSvg } from "./transformSvg";
 
 export const factory = createFactory<{ Bindings: Env }>();
 
@@ -10,11 +11,16 @@ export const handlers = [
       new Option("math", "Mathjax expression").required(),
     ),
     async (c) => {
-      c.var.math;
-      const svg = await renderMathSvg(c.var.math, { display: true });
-      const pngBlob = await svgToPngBlob(svg);
-      const filename = "math.png";
+      let svg = await renderMathSvg(c.var.math, { display: true });
+      svg = applyPaddingAndBackgroundToSvg(svg, {
+        padding: 20,
+        background: "white",
+      });
+      const pngBlob = await svgToPngBlob(svg, {
+        fitTo: { mode: "height", value: 100 },
+      });
 
+      const filename = "math.png";
       const msg = new Embed()
         .title("`tex` result:")
         .color(0x006400)
