@@ -1,7 +1,7 @@
 import { register } from "discord-hono";
 import { factory, handlers } from ".";
 
-const DISCORD_TEST_GUILD_ID = process.env.DISCORD_TEST_GUILD_ID;
+const DISCORD_TEST_GUILD_ID = process.env.DISCORD_TEST_GUILD_ID ?? "";
 
 register(
   factory.getCommands(handlers),
