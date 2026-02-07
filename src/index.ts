@@ -1,5 +1,6 @@
-import { Command, createFactory, Option } from "discord-hono";
+import { Command, createFactory, Embed, Option } from "discord-hono";
 import { renderMathSvg } from "./mathjax";
+import { svgToPngBlob } from "./svg2png";
 
 export const factory = createFactory<{ Bindings: Env }>();
 
@@ -11,7 +12,15 @@ export const handlers = [
     async (c) => {
       c.var.math;
       const svg = await renderMathSvg(c.var.math, { display: true });
-      return c.res(svg);
+      const pngBlob = await svgToPngBlob(svg);
+      const filename = "math.png";
+
+      const msg = new Embed()
+        .title("`tex` result:")
+        .color(0x006400)
+        .image({ url: `attachment://${filename}` });
+
+      return c.res({ embeds: [msg] }, { blob: pngBlob, name: filename });
     },
   ),
 ];
