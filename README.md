@@ -2,7 +2,7 @@
 
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 
-A high performance, simple Discord bot for science majors, written in Rust.
+A high performance, simple Discord bot for science majors.
 
 - [INVITE LINK](https://discord.com/api/oauth2/authorize?client_id=603145258188013568&permissions=0&scope=bot)
 
@@ -28,14 +28,6 @@ A high performance, simple Discord bot for science majors, written in Rust.
 
 - `DISCORD_TOKEN` (Required): Environment variable that holds the discord token.
 
-### Using Docker ([Fly.io](https://fly.io) and etc.)
-
-Assuming deployment with Docker, a Feature `docker` for Docker is provided: for
-example, the search for font files is made in the current directory to simplify
-the procedure of installing fonts in a Distroless image.
-
-Please read the [Dockerfile](./Dockerfile) for more information.
-
 ## License
 
 This Program is licensed under [AGPL-3.0](./LICENSE).
@@ -48,4 +40,4 @@ code using Mathjax. For more information, please see
 
 ## Author
 
-gw31415 <git@amas.dev>
+gw31415
