@@ -7,7 +7,9 @@ function init() {
   return resvgReady;
 }
 
-export async function svgToPngBlob(...opts: ConstructorParameters<typeof Resvg>): Promise<Blob> {
+export async function svgToPngBlob(
+  ...opts: ConstructorParameters<typeof Resvg>
+): Promise<Blob> {
   await init();
   const resvg = new Resvg(...opts);
 
