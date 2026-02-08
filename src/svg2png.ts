@@ -7,13 +7,10 @@ function init() {
   return resvgReady;
 }
 
-export async function svgToPngBlob(
+export async function svgToPng(
   ...opts: ConstructorParameters<typeof Resvg>
-): Promise<Blob> {
+): Promise<Uint8Array> {
   await init();
   const resvg = new Resvg(...opts);
-
-  const pngData = resvg.render();
-  const pngUint8 = pngData.asPng();
-  return new Blob([pngUint8], { type: "image/png" });
+  return resvg.render().asPng();
 }

@@ -1,7 +1,6 @@
 import { Command, createFactory, Embed, Option } from "discord-hono";
 import { renderMathSvg } from "./mathjax";
-import { svgToPngBlob } from "./svg2png";
-import { applyPaddingAndBackgroundToSvg } from "./transformSvg";
+import { svgToPng } from "./svg2png";
 
 export const factory = createFactory<{ Bindings: Env }>();
 
@@ -11,12 +10,9 @@ export const handlers = [
       new Option("math", "Mathjax expression").required(),
     ),
     async (c) => {
-      let svg = await renderMathSvg(c.var.math, { display: true });
-      svg = applyPaddingAndBackgroundToSvg(svg, {
-        padding: 20,
+      const svg = await renderMathSvg(c.var.math, { display: true });
+      const png = await svgToPng(svg, {
         background: "white",
-      });
-      const pngBlob = await svgToPngBlob(svg, {
         fitTo: { mode: "height", value: 100 },
       });
 
@@ -26,7 +22,10 @@ export const handlers = [
         .color(0x006400)
         .image({ url: `attachment://${filename}` });
 
-      return c.res({ embeds: [msg] }, { blob: pngBlob, name: filename });
+      return c.res(
+        { embeds: [msg] },
+        { blob: new Blob([png], { type: "image/png" }), name: filename },
+      );
     },
   ),
 ];
