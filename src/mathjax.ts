@@ -18,17 +18,15 @@ export async function renderMathSvg(
   options?: OptionList,
 ): Promise<string> {
   try {
-    const svgNode = await mathDocument.convert(latex, options);
-    const svgString = adaptor.outerHTML(svgNode);
-    const svgTag = svgString.match(/<svg[^>]*>[\s\S]*<\/svg>/g)![0];
-
+    const svgString = adaptor.outerHTML(
+      await mathDocument.convert(latex, options),
+    );
     if (svgString.includes("data-mjx-error")) {
       const titleMatch = svgString.match(/title="([^"]+)"/);
       const title = titleMatch ? titleMatch[1] : "MathJax error";
       throw new Error(title);
     }
-
-    return svgTag;
+    return svgString.match(/<svg[^>]*>[\s\S]*<\/svg>/g)![0];
   } catch (error) {
     console.error("MathJax rendering error:", error);
     throw new Error(
