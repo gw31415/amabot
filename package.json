@@ -5,7 +5,10 @@
   "private": true,
   "pnpm": {
     "onlyBuiltDependencies": [
-      "bun"
+      "bun",
+      "esbuild",
+      "sharp",
+      "workerd"
     ]
   },
   "scripts": {
